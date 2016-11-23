@@ -97,23 +97,12 @@
 	const ReactDOM = __webpack_require__(38);
 	const { Route, Router, IndexRoute, hashHistory } = __webpack_require__(184);
 
-	const Main = __webpack_require__(239);
-	const Timer = __webpack_require__(241);
-	const Countdown = __webpack_require__(244);
+	const TodoApp = __webpack_require__(239);
 
+	__webpack_require__(242);
 	__webpack_require__(246);
-	__webpack_require__(250);
 
-	ReactDOM.render(React.createElement(
-	  Router,
-	  { history: hashHistory },
-	  React.createElement(
-	    Route,
-	    { path: '/', component: Main },
-	    React.createElement(IndexRoute, { component: Timer }),
-	    React.createElement(Route, { path: 'countdown', component: Countdown })
-	  )
-	), document.getElementById('app'));
+	ReactDOM.render(React.createElement(TodoApp, null), document.getElementById('app'));
 
 /***/ },
 /* 7 */
@@ -3264,30 +3253,38 @@
 	// Set.prototype.keys
 	Set.prototype != null && typeof Set.prototype.keys === 'function' && isNative(Set.prototype.keys);
 
+	var setItem;
+	var getItem;
+	var removeItem;
+	var getItemIDs;
+	var addRoot;
+	var removeRoot;
+	var getRootIDs;
+
 	if (canUseCollections) {
 	  var itemMap = new Map();
 	  var rootIDSet = new Set();
 
-	  var setItem = function (id, item) {
+	  setItem = function (id, item) {
 	    itemMap.set(id, item);
 	  };
-	  var getItem = function (id) {
+	  getItem = function (id) {
 	    return itemMap.get(id);
 	  };
-	  var removeItem = function (id) {
+	  removeItem = function (id) {
 	    itemMap['delete'](id);
 	  };
-	  var getItemIDs = function () {
+	  getItemIDs = function () {
 	    return Array.from(itemMap.keys());
 	  };
 
-	  var addRoot = function (id) {
+	  addRoot = function (id) {
 	    rootIDSet.add(id);
 	  };
-	  var removeRoot = function (id) {
+	  removeRoot = function (id) {
 	    rootIDSet['delete'](id);
 	  };
-	  var getRootIDs = function () {
+	  getRootIDs = function () {
 	    return Array.from(rootIDSet.keys());
 	  };
 	} else {
@@ -3303,31 +3300,31 @@
 	    return parseInt(key.substr(1), 10);
 	  };
 
-	  var setItem = function (id, item) {
+	  setItem = function (id, item) {
 	    var key = getKeyFromID(id);
 	    itemByKey[key] = item;
 	  };
-	  var getItem = function (id) {
+	  getItem = function (id) {
 	    var key = getKeyFromID(id);
 	    return itemByKey[key];
 	  };
-	  var removeItem = function (id) {
+	  removeItem = function (id) {
 	    var key = getKeyFromID(id);
 	    delete itemByKey[key];
 	  };
-	  var getItemIDs = function () {
+	  getItemIDs = function () {
 	    return Object.keys(itemByKey).map(getIDFromKey);
 	  };
 
-	  var addRoot = function (id) {
+	  addRoot = function (id) {
 	    var key = getKeyFromID(id);
 	    rootByKey[key] = true;
 	  };
-	  var removeRoot = function (id) {
+	  removeRoot = function (id) {
 	    var key = getKeyFromID(id);
 	    delete rootByKey[key];
 	  };
-	  var getRootIDs = function () {
+	  getRootIDs = function () {
 	    return Object.keys(rootByKey).map(getIDFromKey);
 	  };
 	}
@@ -4108,7 +4105,7 @@
 
 	'use strict';
 
-	module.exports = '15.4.0';
+	module.exports = '15.4.1';
 
 /***/ },
 /* 37 */
@@ -5513,6 +5510,28 @@
 	  return '.' + inst._rootNodeID;
 	};
 
+	function isInteractive(tag) {
+	  return tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea';
+	}
+
+	function shouldPreventMouseEvent(name, type, props) {
+	  switch (name) {
+	    case 'onClick':
+	    case 'onClickCapture':
+	    case 'onDoubleClick':
+	    case 'onDoubleClickCapture':
+	    case 'onMouseDown':
+	    case 'onMouseDownCapture':
+	    case 'onMouseMove':
+	    case 'onMouseMoveCapture':
+	    case 'onMouseUp':
+	    case 'onMouseUpCapture':
+	      return !!(props.disabled && isInteractive(type));
+	    default:
+	      return false;
+	  }
+	}
+
 	/**
 	 * This is a unified interface for event plugins to be installed and configured.
 	 *
@@ -5581,7 +5600,12 @@
 	   * @return {?function} The stored callback.
 	   */
 	  getListener: function (inst, registrationName) {
+	    // TODO: shouldPreventMouseEvent is DOM-specific and definitely should not
+	    // live here; needs to be moved to a better place soon
 	    var bankForRegistrationName = listenerBank[registrationName];
+	    if (shouldPreventMouseEvent(registrationName, inst._currentElement.type, inst._currentElement.props)) {
+	      return null;
+	    }
 	    var key = getDictionaryKey(inst);
 	    return bankForRegistrationName && bankForRegistrationName[key];
 	  },
@@ -19671,18 +19695,6 @@
 	  return tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea';
 	}
 
-	function shouldPreventMouseEvent(inst) {
-	  if (inst) {
-	    var disabled = inst._currentElement && inst._currentElement.props.disabled;
-
-	    if (disabled) {
-	      return isInteractive(inst._tag);
-	    }
-	  }
-
-	  return false;
-	}
-
 	var SimpleEventPlugin = {
 
 	  eventTypes: eventTypes,
@@ -19753,10 +19765,7 @@
 	      case 'topMouseDown':
 	      case 'topMouseMove':
 	      case 'topMouseUp':
-	        // Disabled elements should not respond to mouse events
-	        if (shouldPreventMouseEvent(targetInst)) {
-	          return null;
-	        }
+	      // TODO: Disabled elements should not respond to mouse events
 	      /* falls through */
 	      case 'topMouseOut':
 	      case 'topMouseOver':
@@ -21118,7 +21127,7 @@
 
 	'use strict';
 
-	module.exports = '15.4.0';
+	module.exports = '15.4.1';
 
 /***/ },
 /* 178 */
@@ -26412,403 +26421,103 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	const React = __webpack_require__(7);
-	const Nav = __webpack_require__(240);
+	const TodoList = __webpack_require__(240);
 
-	const Main = props => React.createElement(
-	  'div',
-	  null,
-	  React.createElement(Nav, null),
-	  React.createElement(
-	    'div',
-	    { className: 'row' },
-	    React.createElement(
+	const TodoApp = React.createClass({
+	  displayName: 'TodoApp',
+
+	  getInitialState: function () {
+	    return {
+	      todos: [{
+	        id: 1,
+	        text: 'Walk the dog'
+	      }, {
+	        id: 2,
+	        text: 'Clean the yard'
+	      }, {
+	        id: 3,
+	        text: 'Leave mail on porch'
+	      }, {
+	        id: 4,
+	        text: 'Play video games'
+	      }]
+	    };
+	  },
+	  render: function () {
+	    const { todos } = this.state;
+	    return React.createElement(
 	      'div',
-	      { className: 'column small-centered medium-6 large-4' },
-	      props.children
-	    )
-	  )
-	);
+	      null,
+	      React.createElement(TodoList, { todos: todos })
+	    );
+	  }
+	});
 
-	module.exports = Main;
+	module.exports = TodoApp;
 
 /***/ },
 /* 240 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const React = __webpack_require__(7);
-	const { Link, IndexLink } = __webpack_require__(184);
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	const Nav = React.createClass({
-	  displayName: 'Nav',
+	const React = __webpack_require__(7);
+	const Todo = __webpack_require__(241);
+
+	const TodoList = React.createClass({
+	  displayName: 'TodoList',
 
 	  render: function () {
+	    const { todos } = this.props;
+	    const renderTodos = () => {
+	      return todos.map(todo => {
+	        return React.createElement(Todo, _extends({ key: todo.id }, todo));
+	      });
+	    };
 	    return React.createElement(
 	      'div',
-	      { className: 'top-bar' },
-	      React.createElement(
-	        'div',
-	        { className: 'top-bar-left' },
-	        React.createElement(
-	          'ul',
-	          { className: 'menu' },
-	          React.createElement(
-	            'li',
-	            { className: 'menu-text' },
-	            'React Time App'
-	          ),
-	          React.createElement(
-	            'li',
-	            null,
-	            React.createElement(
-	              IndexLink,
-	              { to: '/', activeClassName: 'active-link' },
-	              'Timer'
-	            )
-	          ),
-	          React.createElement(
-	            'li',
-	            null,
-	            React.createElement(
-	              Link,
-	              { to: '/countdown', activeClassName: 'active-link' },
-	              'Countdown'
-	            )
-	          )
-	        )
-	      ),
-	      React.createElement(
-	        'div',
-	        { className: 'top-bar-right' },
-	        React.createElement(
-	          'ul',
-	          { className: 'menu' },
-	          React.createElement(
-	            'li',
-	            { className: 'menu-text' },
-	            React.createElement(
-	              'span',
-	              null,
-	              'Created by '
-	            ),
-	            React.createElement(
-	              'a',
-	              { href: 'https://github.com/sairus2k', target: '_blank' },
-	              'sairus2k'
-	            )
-	          )
-	        )
-	      )
+	      null,
+	      renderTodos()
 	    );
 	  }
 	});
 
-	module.exports = Nav;
+	module.exports = TodoList;
 
 /***/ },
 /* 241 */
 /***/ function(module, exports, __webpack_require__) {
 
 	const React = __webpack_require__(7);
-	const Clock = __webpack_require__(242);
-	const Controls = __webpack_require__(243);
 
-	const Timer = React.createClass({
-	  displayName: 'Timer',
+	const Todo = React.createClass({
+	  displayName: 'Todo',
 
-	  getInitialState: function () {
-	    return {
-	      count: 0,
-	      timerStatus: 'stopped'
-	    };
-	  },
-	  componentDidUpdate: function (prevProps, prevState) {
-	    const status = this.state.timerStatus;
-	    if (status !== prevState.timerStatus) {
-	      const switchCase = {
-	        started: () => {
-	          this.startTimer();
-	        },
-	        stopped: () => {
-	          this.setState({ count: 0 });
-	          switchCase['paused']();
-	        },
-	        paused: () => {
-	          clearInterval(this.timer);
-	          this.timer = null;
-	        },
-	        default: () => {}
-	      };
-	      (switchCase[status] || switchCase['default'])();
-	    }
-	  },
-	  componetWillUnmount: function () {
-	    clearInterval(this.timer);
-	    this.timer = null;
-	  },
-	  startTimer: function () {
-	    this.timer = setInterval(() => {
-	      const newCount = this.state.count + 1;
-	      this.setState({
-	        count: newCount
-	      });
-	    }, 1000);
-	  },
-	  handleStatusChange: function (newStatus) {
-	    this.setState({
-	      timerStatus: newStatus
-	    });
-	  },
 	  render: function () {
-	    const { count, timerStatus } = this.state;
+	    const { id, text } = this.props;
 	    return React.createElement(
 	      'div',
 	      null,
-	      React.createElement(
-	        'h1',
-	        { className: 'page-title' },
-	        'Timer App'
-	      ),
-	      React.createElement(Clock, { totalSeconds: count }),
-	      React.createElement(Controls, { onStatusChange: this.handleStatusChange, countdownStatus: timerStatus })
+	      id,
+	      '. ',
+	      text
 	    );
 	  }
 	});
 
-	module.exports = Timer;
+	module.exports = Todo;
 
 /***/ },
 /* 242 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const React = __webpack_require__(7);
-
-	const Clock = React.createClass({
-	  displayName: "Clock",
-
-	  getDefaultProps: function () {
-	    return {
-	      totalSeconds: 0
-	    };
-	  },
-	  propTypes: {
-	    totalSeconds: React.PropTypes.number
-	  },
-	  formatSeconds: function (totalSeconds) {
-	    const seconds = totalSeconds % 60;
-	    const minutes = Math.floor(totalSeconds / 60);
-	    const secondsStr = seconds < 10 ? `0${ seconds }` : `${ seconds }`;
-	    const minutesStr = minutes < 10 ? `0${ minutes }` : `${ minutes }`;
-	    return `${ minutesStr }:${ secondsStr }`;
-	  },
-	  render: function () {
-	    const { totalSeconds } = this.props;
-	    return React.createElement(
-	      "div",
-	      { className: "clock" },
-	      React.createElement(
-	        "span",
-	        { className: "clock-text" },
-	        this.formatSeconds(totalSeconds)
-	      )
-	    );
-	  }
-	});
-
-	module.exports = Clock;
-
-/***/ },
-/* 243 */
-/***/ function(module, exports, __webpack_require__) {
-
-	const React = __webpack_require__(7);
-
-	const Controls = React.createClass({
-	  displayName: 'Controls',
-
-	  propTypes: {
-	    countdownStatus: React.PropTypes.string.isRequired,
-	    onStatusChange: React.PropTypes.func.isRequired
-	  },
-	  onStatusChange: function (newStatus) {
-	    return () => {
-	      this.props.onStatusChange(newStatus);
-	    };
-	  },
-	  render: function () {
-	    const { countdownStatus } = this.props;
-	    const renderStartStopButton = () => {
-	      if (countdownStatus === 'started') {
-	        return React.createElement(
-	          'button',
-	          { className: 'button secondary',
-	            onClick: this.onStatusChange('paused') },
-	          'Pause'
-	        );
-	      } else {
-	        return React.createElement(
-	          'button',
-	          { className: 'button primary',
-	            onClick: this.onStatusChange('started') },
-	          'Start'
-	        );
-	      }
-	    };
-	    return React.createElement(
-	      'div',
-	      { className: 'controls' },
-	      renderStartStopButton(),
-	      React.createElement(
-	        'button',
-	        { className: 'button primary',
-	          onClick: this.onStatusChange('stopped') },
-	        'Clear'
-	      )
-	    );
-	  }
-	});
-
-	module.exports = Controls;
-
-/***/ },
-/* 244 */
-/***/ function(module, exports, __webpack_require__) {
-
-	const React = __webpack_require__(7);
-	const Clock = __webpack_require__(242);
-	const CountdownForm = __webpack_require__(245);
-	const Controls = __webpack_require__(243);
-
-	const Countdown = React.createClass({
-	  displayName: 'Countdown',
-
-	  getInitialState: function () {
-	    return {
-	      count: 0,
-	      countdownStatus: 'stopped'
-	    };
-	  },
-	  componentDidUpdate: function (prevProps, prevState) {
-	    const status = this.state.countdownStatus;
-	    if (status !== prevState.countdownStatus) {
-	      const switchCase = {
-	        started: () => {
-	          this.startTimer();
-	        },
-	        stopped: () => {
-	          this.setState({ count: 0 });
-	          switchCase['paused']();
-	        },
-	        paused: () => {
-	          clearInterval(this.timer);
-	          this.timer = null;
-	        },
-	        default: () => {}
-	      };
-	      (switchCase[status] || switchCase['default'])();
-	    }
-	  },
-	  componentWillUnmount: function () {
-	    clearInterval(this.timer);
-	    this.timer = null;
-	  },
-	  startTimer: function () {
-	    this.timer = setInterval(() => {
-	      const newCount = this.state.count - 1;
-	      this.setState({
-	        count: newCount > 0 ? newCount : 0
-	      });
-	      if (newCount === 0) {
-	        this.setState({
-	          countdownStatus: 'stopped'
-	        });
-	      }
-	    }, 1000);
-	  },
-	  handleSetCountdown: function (seconds) {
-	    this.setState({
-	      count: seconds,
-	      countdownStatus: 'started'
-	    });
-	  },
-	  handleStatusChange: function (newStatus) {
-	    this.setState({
-	      countdownStatus: newStatus
-	    });
-	  },
-	  render: function () {
-	    const { count, countdownStatus } = this.state;
-	    const renderControlArea = () => {
-	      if (countdownStatus !== 'stopped') {
-	        return React.createElement(Controls, { countdownStatus: countdownStatus,
-	          onStatusChange: this.handleStatusChange });
-	      } else {
-	        return React.createElement(CountdownForm, { onSetCountdown: this.handleSetCountdown });
-	      }
-	    };
-	    return React.createElement(
-	      'div',
-	      null,
-	      React.createElement(
-	        'h1',
-	        { className: 'page-title' },
-	        'Countdown App'
-	      ),
-	      React.createElement(Clock, { totalSeconds: count }),
-	      renderControlArea()
-	    );
-	  }
-	});
-
-	module.exports = Countdown;
-
-/***/ },
-/* 245 */
-/***/ function(module, exports, __webpack_require__) {
-
-	const React = __webpack_require__(7);
-
-	const CountdownForm = React.createClass({
-	  displayName: 'CountdownForm',
-
-	  onSubmit: function (event) {
-	    event.preventDefault();
-	    const strSeconds = this.refs.seconds.value;
-	    if (strSeconds.match(/^[0-9]*$/)) {
-	      this.refs.seconds.value = '';
-	      this.props.onSetCountdown(parseInt(strSeconds, 10));
-	    }
-	  },
-	  render: function () {
-	    return React.createElement(
-	      'div',
-	      null,
-	      React.createElement(
-	        'form',
-	        { ref: 'form', onSubmit: this.onSubmit, className: 'countdown-form' },
-	        React.createElement('input', { type: 'text', ref: 'seconds', placeholder: 'Enter time in seconds' }),
-	        React.createElement(
-	          'button',
-	          { className: 'button expanded' },
-	          'Start'
-	        )
-	      )
-	    );
-	  }
-	});
-
-	module.exports = CountdownForm;
-
-/***/ },
-/* 246 */
-/***/ function(module, exports, __webpack_require__) {
-
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(247);
+	var content = __webpack_require__(243);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(249)(content, {});
+	var update = __webpack_require__(245)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -26825,10 +26534,10 @@
 	}
 
 /***/ },
-/* 247 */
+/* 243 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(248)();
+	exports = module.exports = __webpack_require__(244)();
 	// imports
 
 
@@ -26839,7 +26548,7 @@
 
 
 /***/ },
-/* 248 */
+/* 244 */
 /***/ function(module, exports) {
 
 	/*
@@ -26895,7 +26604,7 @@
 
 
 /***/ },
-/* 249 */
+/* 245 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -27147,16 +26856,16 @@
 
 
 /***/ },
-/* 250 */
+/* 246 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(251);
+	var content = __webpack_require__(247);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(249)(content, {});
+	var update = __webpack_require__(245)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -27173,15 +26882,15 @@
 	}
 
 /***/ },
-/* 251 */
+/* 247 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(248)();
+	exports = module.exports = __webpack_require__(244)();
 	// imports
 
 
 	// module
-	exports.push([module.id, ".top-bar,\n.top-bar ul {\n  background-color: #333; }\n\n.top-bar .menu-text {\n  color: #fff; }\n\n.top-bar .menu > .menu-text > a {\n  display: inline-block;\n  padding: 0; }\n\n.top-bar .active-link {\n  font-weight: bold; }\n\n.clock {\n  align-items: center;\n  background-color: #b5d0e2;\n  border: 2px solid #2099eb;\n  border-radius: 50%;\n  display: flex;\n  height: 14rem;\n  width: 14rem;\n  justify-content: center;\n  margin: 4rem auto; }\n  .clock-text {\n    color: #fff;\n    font-size: 2.25rem;\n    font-weight: 300; }\n\n.controls {\n  display: flex;\n  justify-content: center; }\n  .controls .button {\n    padding: .75rem 3rem; }\n    .controls .button:first-child {\n      margin-right: 1.5rem; }\n\n.page-title {\n  margin: 2rem 0;\n  text-align: center; }\n", ""]);
+	exports.push([module.id, "", ""]);
 
 	// exports
 

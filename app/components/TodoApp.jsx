@@ -1,5 +1,5 @@
 const React = require('react');
-const TodoList = require('TodoLlist');
+const TodoList = require('TodoList.jsx');
 
 const TodoApp = React.createClass({
   getInitialState: function () {

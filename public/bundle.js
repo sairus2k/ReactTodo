@@ -26421,7 +26421,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	const React = __webpack_require__(7);
-	const TodoList = __webpack_require__(240);
+	const TodoList = __webpack_require__(248);
 
 	const TodoApp = React.createClass({
 	  displayName: 'TodoApp',
@@ -26456,35 +26456,7 @@
 	module.exports = TodoApp;
 
 /***/ },
-/* 240 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	const React = __webpack_require__(7);
-	const Todo = __webpack_require__(241);
-
-	const TodoList = React.createClass({
-	  displayName: 'TodoList',
-
-	  render: function () {
-	    const { todos } = this.props;
-	    const renderTodos = () => {
-	      return todos.map(todo => {
-	        return React.createElement(Todo, _extends({ key: todo.id }, todo));
-	      });
-	    };
-	    return React.createElement(
-	      'div',
-	      null,
-	      renderTodos()
-	    );
-	  }
-	});
-
-	module.exports = TodoList;
-
-/***/ },
+/* 240 */,
 /* 241 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -26894,6 +26866,35 @@
 
 	// exports
 
+
+/***/ },
+/* 248 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	const React = __webpack_require__(7);
+	const Todo = __webpack_require__(241);
+
+	const TodoList = React.createClass({
+	  displayName: 'TodoList',
+
+	  render: function () {
+	    const { todos } = this.props;
+	    const renderTodos = () => {
+	      return todos.map(todo => {
+	        return React.createElement(Todo, _extends({ key: todo.id }, todo));
+	      });
+	    };
+	    return React.createElement(
+	      'div',
+	      null,
+	      renderTodos()
+	    );
+	  }
+	});
+
+	module.exports = TodoList;
 
 /***/ }
 /******/ ]);

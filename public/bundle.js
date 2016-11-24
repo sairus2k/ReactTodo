@@ -26435,16 +26435,20 @@
 	      searchText: '',
 	      todos: [{
 	        id: uuid(),
-	        text: 'Walk the dog'
+	        text: 'Walk the dog',
+	        completed: false
 	      }, {
 	        id: uuid(),
-	        text: 'Clean the yard'
+	        text: 'Clean the yard',
+	        completed: true
 	      }, {
 	        id: uuid(),
-	        text: 'Leave mail on porch'
+	        text: 'Leave mail on porch',
+	        completed: true
 	      }, {
 	        id: uuid(),
-	        text: 'Play video games'
+	        text: 'Play video games',
+	        completed: false
 	      }]
 	    };
 	  },
@@ -26452,9 +26456,19 @@
 	    this.setState({
 	      todos: [...this.state.todos, {
 	        id: uuid(),
-	        text
+	        text,
+	        completed: false
 	      }]
 	    });
+	  },
+	  handleToggle: function (id) {
+	    const updatedTodos = this.state.todos.map(todo => {
+	      if (todo.id === id) {
+	        todo.completed = !todo.completed;
+	      }
+	      return todo;
+	    });
+	    this.setState({ todos: updatedTodos });
 	  },
 	  handleSearch: function (showCompleted, searchText) {
 	    this.setState({
@@ -26468,7 +26482,7 @@
 	      'div',
 	      null,
 	      React.createElement(TodoSearch, { onSearch: this.handleSearch }),
-	      React.createElement(TodoList, { todos: todos }),
+	      React.createElement(TodoList, { todos: todos, onToggle: this.handleToggle }),
 	      React.createElement(AddTodo, { onAddTodo: this.handleAddTodo })
 	    );
 	  }
@@ -26489,10 +26503,10 @@
 	  displayName: 'TodoList',
 
 	  render: function () {
-	    const { todos } = this.props;
+	    const { todos, onToggle } = this.props;
 	    const renderTodos = () => {
 	      return todos.map(todo => {
-	        return React.createElement(Todo, _extends({ key: todo.id }, todo));
+	        return React.createElement(Todo, _extends({ key: todo.id }, todo, { onToggle: onToggle }));
 	      });
 	    };
 	    return React.createElement(
@@ -26512,15 +26526,22 @@
 	const React = __webpack_require__(7);
 
 	const Todo = React.createClass({
-	  displayName: 'Todo',
+	  displayName: "Todo",
 
+	  propTypes: {
+	    id: React.PropTypes.string.isRequired,
+	    text: React.PropTypes.string.isRequired,
+	    completed: React.PropTypes.bool.isRequired,
+	    onToggle: React.PropTypes.func.isRequired
+	  },
 	  render: function () {
-	    const { id, text } = this.props;
+	    const { id, text, completed, onToggle } = this.props;
 	    return React.createElement(
-	      'div',
-	      null,
-	      id,
-	      '. ',
+	      "div",
+	      { onClick: () => {
+	          onToggle(id);
+	        } },
+	      React.createElement("input", { type: "checkbox", ref: "", checked: completed }),
 	      text
 	    );
 	  }

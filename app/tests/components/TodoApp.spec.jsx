@@ -18,6 +18,7 @@ describe('TodoApp', () => {
       todoApp.setState({todos: []});
       todoApp.handleAddTodo(todoText);
       expect(todoApp.state.todos[0].text).toBe(todoText);
+      expect(todoApp.state.todos[0].createdAt).toBeA('number');
     });
   });
 
@@ -39,8 +40,22 @@ describe('TodoApp', () => {
       const todoApp = TestUtils.renderIntoDocument(<TodoApp/>);
       todoApp.setState({todos: todoFixture});
       expect(todoApp.state.todos[3].completed).toBe(false);
+      expect(todoApp.state.todos[3].completedAt).toNotExist();
       todoApp.handleToggle(todoId);
       expect(todoApp.state.todos[3].completed).toBe(true);
+      expect(todoApp.state.todos[3].completedAt).toBeA('number');
+    });
+
+    it('should remove completedAt when toggle from true to false', () => {
+      const todoId = '615276e3-5f82-4a7e-95a0-823f95198219';
+      const todoApp = TestUtils.renderIntoDocument(<TodoApp/>);
+      todoApp.setState({todos: todoFixture});
+      expect(todoApp.state.todos[2].completed).toBe(true);
+      expect(todoApp.state.todos[2].completedAt).toBeA('number');
+      todoApp.handleToggle(todoId);
+      expect(todoApp.state.todos[2].completed).toBe(false);
+      expect(todoApp.state.todos[2].completedAt).toNotExist();
+
     });
   });
 

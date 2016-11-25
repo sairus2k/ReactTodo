@@ -15,9 +15,9 @@ describe('AddTodo', () => {
       const todoText = 'Check mail';
       const spy = expect.createSpy();
       const addTodo = TestUtils.renderIntoDocument(<AddTodo onAddTodo={spy}/>);
-      const el = ReactDOM.findDOMNode(addTodo);
+      const form = TestUtils.findRenderedDOMComponentWithTag(addTodo, 'form');
       addTodo.refs.todoText.value = todoText;
-      TestUtils.Simulate.submit(el);
+      TestUtils.Simulate.submit(form);
       expect(spy).toHaveBeenCalledWith(todoText);
     });
 

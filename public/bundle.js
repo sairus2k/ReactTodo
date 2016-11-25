@@ -26475,9 +26475,26 @@
 	    return React.createElement(
 	      'div',
 	      null,
-	      React.createElement(TodoSearch, { onSearch: this.handleSearch }),
-	      React.createElement(TodoList, { todos: filteredTodos, onToggle: this.handleToggle }),
-	      React.createElement(AddTodo, { onAddTodo: this.handleAddTodo })
+	      React.createElement(
+	        'h1',
+	        { className: 'page-title' },
+	        'Todo App'
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: 'row' },
+	        React.createElement(
+	          'div',
+	          { className: 'column small-centered small-11 medium-6 large-6' },
+	          React.createElement(
+	            'div',
+	            { className: 'container' },
+	            React.createElement(TodoSearch, { onSearch: this.handleSearch }),
+	            React.createElement(TodoList, { todos: filteredTodos, onToggle: this.handleToggle }),
+	            React.createElement(AddTodo, { onAddTodo: this.handleAddTodo })
+	          )
+	        )
+	      )
 	    );
 	  }
 	});
@@ -30785,6 +30802,13 @@
 	  render: function () {
 	    const { todos, onToggle } = this.props;
 	    const renderTodos = () => {
+	      if (todos.length === 0) {
+	        return React.createElement(
+	          'p',
+	          { className: 'container__message' },
+	          'Nothing To Do'
+	        );
+	      }
 	      return todos.map(todo => {
 	        return React.createElement(Todo, _extends({ key: todo.id }, todo, { onToggle: onToggle }));
 	      });
@@ -30818,6 +30842,7 @@
 	  },
 	  render: function () {
 	    const { id, text, completed, onToggle, createdAt, completedAt } = this.props;
+	    const todoClassName = completed ? 'todo todo-completed' : 'todo';
 	    const renderDate = () => {
 	      let message = 'Created';
 	      let timestamp = createdAt;
@@ -30829,19 +30854,27 @@
 	    };
 	    return React.createElement(
 	      'div',
-	      { onClick: () => {
+	      { className: todoClassName, onClick: () => {
 	          onToggle(id);
 	        } },
-	      React.createElement('input', { type: 'checkbox', ref: '', checked: completed }),
 	      React.createElement(
-	        'p',
+	        'div',
 	        null,
-	        text
+	        React.createElement('input', { type: 'checkbox', ref: '', checked: completed })
 	      ),
 	      React.createElement(
-	        'p',
-	        null,
-	        renderDate()
+	        'div',
+	        { className: 'todo__subtext' },
+	        React.createElement(
+	          'p',
+	          null,
+	          text
+	        ),
+	        React.createElement(
+	          'p',
+	          null,
+	          renderDate()
+	        )
 	      )
 	    );
 	  }
@@ -30873,13 +30906,17 @@
 	  },
 	  render: function () {
 	    return React.createElement(
-	      'form',
-	      { onSubmit: this.handleSubmit },
-	      React.createElement('input', { type: 'text', ref: 'todoText', placeholder: 'What do you need to do?' }),
+	      'div',
+	      { className: 'container__footer' },
 	      React.createElement(
-	        'button',
-	        { className: 'button expanded' },
-	        'Add Todo'
+	        'form',
+	        { onSubmit: this.handleSubmit },
+	        React.createElement('input', { type: 'text', ref: 'todoText', placeholder: 'What do you need to do?' }),
+	        React.createElement(
+	          'button',
+	          { className: 'button expanded' },
+	          'Add Todo'
+	        )
 	      )
 	    );
 	  }
@@ -30907,7 +30944,7 @@
 	  render: function () {
 	    return React.createElement(
 	      "div",
-	      null,
+	      { className: "container__header" },
 	      React.createElement(
 	        "div",
 	        null,
@@ -31365,7 +31402,7 @@
 
 
 	// module
-	exports.push([module.id, "", ""]);
+	exports.push([module.id, ".page-title {\n  text-align: center;\n  margin: 0;\n  padding: 2rem 0; }\n\n.container {\n  background: #fafafa;\n  border: 1px solid #eee;\n  border-radius: 5px;\n  padding: 0;\n  margin-bottom: 2rem; }\n  .container__header {\n    border-bottom: 1 solid #eee;\n    padding: 1rem; }\n    .container__header label {\n      cursor: pointer;\n      font-size: 1rem; }\n    .container__header > :last-child {\n      align-items: center;\n      display: flex; }\n  .container__footer {\n    padding: 1rem 1rem 0;\n    border-top: 1px solid #eee; }\n  .container__message {\n    color: #aaa;\n    margin: 2rem auto;\n    text-align: center; }\n\n.todo {\n  display: flex;\n  cursor: pointer;\n  align-items: center;\n  padding: 1rem;\n  transition: backgorund .3s ease; }\n  .todo p,\n  .todo input {\n    margin: 0; }\n  .todo > :first-child {\n    margin-right: 1rem; }\n  .todo:hover {\n    background: #f0f0f0; }\n  .todo__subtext {\n    color: #999; }\n  .todo-completed p,\n  .todo-completed .todo-subtext {\n    color: #aaa;\n    text-decoration: line-through; }\n", ""]);
 
 	// exports
 

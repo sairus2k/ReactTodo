@@ -48,6 +48,10 @@ module.exports = {
       {
         loader: 'style!css!sass',
         test: /\.scss?$/
+      },
+      {
+        loader: 'json',
+        test: /\.json?$/
       }
     ]
   }

@@ -24,7 +24,8 @@ module.exports = {
     modulesDirectories: [
       'node_modules',
       './app/components',
-      './app/api'
+      './app/api',
+      './app/actions'
     ],
     alias: {
       Main: 'app/components/Main.jsx'

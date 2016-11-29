@@ -17,7 +17,7 @@ const Todo = React.createClass({
       let timestamp = createdAt;
       if (completed) {
         message = 'Completed';
-        timestamt = completedAt;
+        timestamp = completedAt;
       }
       return `${message} ${moment.unix(timestamp).format('Do of MMMM YYYY @ HH:mm')}`;
     };

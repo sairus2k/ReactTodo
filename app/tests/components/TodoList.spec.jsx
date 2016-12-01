@@ -25,7 +25,7 @@ describe('TodoList', () => {
     );
     const todoList = TestUtils.scryRenderedComponentsWithType(provider, ConnectedTodoList)[0];
     const todosComponent = TestUtils.scryRenderedComponentsWithType(todoList, ConnectedTodo);
-    expect(todosComponent.length).toBe(todos.length);
+    expect(todosComponent.length).toBe(2);
   });
 
   it('should render empty message if no todos', () => {

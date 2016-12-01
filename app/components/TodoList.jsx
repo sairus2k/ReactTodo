@@ -1,17 +1,18 @@
 const React = require('react');
 const { connect } = require('react-redux');
 import Todo from 'Todo';
+const TodoApi = require('TodoApi');
 
 export const TodoList = React.createClass({
   render: function () {
-    const { todos } = this.props;
+    const { todos, showCompleted, searchText } = this.props;
     const renderTodos = () => {
       if (todos.length === 0) {
         return (
           <p className="container__message">Nothing To Do</p>
         );
       }
-      return todos.map(todo => {
+      return TodoApi.filterTodos(todos, showCompleted, searchText).map(todo => {
         return (
           <Todo key={todo.id} {...todo}/>
         )
@@ -25,8 +26,4 @@ export const TodoList = React.createClass({
   }
 });
 
-export default connect(
-  (state) => ({
-    todos: state.todos
-  })
-)(TodoList);
+export default connect(state => state)(TodoList);

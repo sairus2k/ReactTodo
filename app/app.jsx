@@ -7,12 +7,16 @@ const TodoApp = require('TodoApp');
 
 const actions = require('actions');
 const store = require('configureStore').configure();
+const TodoApi = require('TodoApi');
 
 store.subscribe(() => {
-  console.log('New state', store.getState());
+  const state = store.getState();
+  console.log('New state', state);
+  TodoApi.setTodos(state.todos);
 });
 
-store.dispatch(actions.toggleShowCompleted());
+const initialTodos = TodoApi.getTodos();
+store.dispatch(actions.addTodos(initialTodos));
 
 require('foundation-sites/dist/foundation.min.css');
 require('./styles/app.scss');

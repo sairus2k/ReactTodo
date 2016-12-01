@@ -3,9 +3,6 @@ const { connect } = require('react-redux');
 const actions = require('actions');
 
 export const TodoSearch = React.createClass({
-  propTypes: {
-    dispatch: React.PropTypes.func.isRequired
-  },
   searchChangeHandler: function () {
     const { dispatch } = this.props;
     const searchText = this.refs.searchText.value;

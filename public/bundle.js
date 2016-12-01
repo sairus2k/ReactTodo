@@ -104,12 +104,16 @@
 
 	const actions = __webpack_require__(381);
 	const store = __webpack_require__(408).configure();
+	const TodoApi = __webpack_require__(407);
 
 	store.subscribe(() => {
-	  console.log('New state', store.getState());
+	  const state = store.getState();
+	  console.log('New state', state);
+	  TodoApi.setTodos(state.todos);
 	});
 
-	store.dispatch(actions.toggleShowCompleted());
+	const initialTodos = TodoApi.getTodos();
+	store.dispatch(actions.addTodos(initialTodos));
 
 	__webpack_require__(410);
 	__webpack_require__(414);
@@ -28087,54 +28091,11 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	const React = __webpack_require__(7);
-	const uuid = __webpack_require__(382);
-	const moment = __webpack_require__(270);
-
-	const TodoApi = __webpack_require__(407);
 
 	const TodoApp = React.createClass({
 	  displayName: 'TodoApp',
 
-	  getInitialState: function () {
-	    return {
-	      showCompleted: false,
-	      searchText: '',
-	      todos: TodoApi.getTodos()
-	    };
-	  },
-	  componentDidUpdate: function () {
-	    TodoApi.setTodos(this.state.todos);
-	  },
-	  handleAddTodo: function (text) {
-	    this.setState({
-	      todos: [...this.state.todos, {
-	        id: uuid(),
-	        text,
-	        completed: false,
-	        createdAt: moment().unix(),
-	        completedAt: null
-	      }]
-	    });
-	  },
-	  handleToggle: function (id) {
-	    const updatedTodos = this.state.todos.map(todo => {
-	      if (todo.id === id) {
-	        todo.completed = !todo.completed;
-	        todo.completedAt = todo.completed ? moment().unix() : null;
-	      }
-	      return todo;
-	    });
-	    this.setState({ todos: updatedTodos });
-	  },
-	  handleSearch: function (showCompleted, searchText) {
-	    this.setState({
-	      showCompleted,
-	      searchText
-	    });
-	  },
 	  render: function () {
-	    const { todos, showCompleted, searchText } = this.state;
-	    const filteredTodos = TodoApi.filterTodos(todos, showCompleted, searchText);
 	    return React.createElement(
 	      'div',
 	      null,
@@ -28152,9 +28113,9 @@
 	          React.createElement(
 	            'div',
 	            { className: 'container' },
-	            React.createElement(_TodoSearch2.default, { onSearch: this.handleSearch }),
+	            React.createElement(_TodoSearch2.default, null),
 	            React.createElement(_TodoList2.default, null),
-	            React.createElement(_AddTodo2.default, { onAddTodo: this.handleAddTodo })
+	            React.createElement(_AddTodo2.default, null)
 	          )
 	        )
 	      )
@@ -43205,6 +43166,11 @@
 	  text
 	});
 
+	const addTodos = exports.addTodos = todos => ({
+	  type: 'ADD_TODOS',
+	  todos
+	});
+
 	const toggleShowCompleted = exports.toggleShowCompleted = () => ({
 	  type: 'TOGGLE_SHOW_COMPLETED'
 	});
@@ -47516,9 +47482,6 @@
 	const AddTodo = exports.AddTodo = React.createClass({
 	  displayName: 'AddTodo',
 
-	  propTypes: {
-	    dispatch: React.PropTypes.func.isRequired
-	  },
 	  handleSubmit: function (event) {
 	    event.preventDefault();
 	    const { dispatch } = this.props;
@@ -47566,9 +47529,6 @@
 	const TodoSearch = exports.TodoSearch = React.createClass({
 	  displayName: 'TodoSearch',
 
-	  propTypes: {
-	    dispatch: React.PropTypes.func.isRequired
-	  },
 	  searchChangeHandler: function () {
 	    const { dispatch } = this.props;
 	    const searchText = this.refs.searchText.value;
@@ -47722,6 +47682,8 @@
 	const todosReducer = exports.todosReducer = (state = [], action) => {
 	  const { text, id } = action;
 	  switch (action.type) {
+	    case 'ADD_TODOS':
+	      return action.todos;
 	    case 'ADD_TODO':
 	      return [...state, {
 	        id: uuid(),

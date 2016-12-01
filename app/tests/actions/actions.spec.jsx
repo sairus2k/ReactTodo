@@ -1,5 +1,6 @@
 const expect = require('expect');
 const actions = require('actions');
+const todos = require('../fixtures/todo.json');
 
 describe('Actions', () => {
   it('should generate search text action', () => {
@@ -17,6 +18,15 @@ describe('Actions', () => {
       text: 'Thing to do'
     };
     const res = actions.addTodo(action.text);
+    expect(res).toEqual(action);
+  });
+
+  it('should generate add todos action', () => {
+    const action = {
+      type: 'ADD_TODOS',
+      todos
+    };
+    const res = actions.addTodos(todos);
     expect(res).toEqual(action);
   });
 

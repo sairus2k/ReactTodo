@@ -1,7 +1,7 @@
 const redux = require('redux');
 const { searchTextReducer, showCompletedReducer, todosReducer } = require('reducers');
 
-export const configure = () => {
+export const configure = (initialState = {}) => {
   const composer = redux.compose(
     window.devToolsExtension ? window.devToolsExtension() : f => f
   );
@@ -11,5 +11,5 @@ export const configure = () => {
     todos: todosReducer
   });
 
-  return redux.createStore(reducer, composer);
+  return redux.createStore(reducer, initialState, composer);
 };

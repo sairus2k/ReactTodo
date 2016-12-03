@@ -3,7 +3,8 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const TestUtils = require('react-addons-test-utils');
 
-const { AddTodo } = require('AddTodo');
+import { AddTodo } from 'AddTodo';
+import * as actions from 'actions';
 
 describe('AddTodo', () => {
   it('should exist', () => {
@@ -13,10 +14,7 @@ describe('AddTodo', () => {
   describe('handleSubmit()', () => {
     it('should call dispatch ADD_TODO when valid todo text', () => {
       const todoText = 'Check mail';
-      const action = {
-        type: 'ADD_TODO',
-        text: todoText
-      };
+      const action = actions.startAddTodo(todoText);
       const spy = expect.createSpy();
       const addTodo = TestUtils.renderIntoDocument(<AddTodo dispatch={spy}/>);
       const form = TestUtils.findRenderedDOMComponentWithTag(addTodo, 'form');

@@ -30,6 +30,7 @@ module.exports = {
       './app/store'
     ],
     alias: {
+      app: 'app',
       Main: 'app/components/Main.jsx'
     },
     extensions: ['', '.js', '.jsx']

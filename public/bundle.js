@@ -106,14 +106,7 @@
 	const store = __webpack_require__(392).configure();
 	const TodoApi = __webpack_require__(389);
 
-	store.subscribe(() => {
-	  const state = store.getState();
-	  console.log('New state', state);
-	  TodoApi.setTodos(state.todos);
-	});
-
-	const initialTodos = TodoApi.getTodos();
-	store.dispatch(actions.addTodos(initialTodos));
+	store.dispatch(actions.startAddTodos());
 
 	__webpack_require__(418);
 	__webpack_require__(422);
@@ -28155,14 +28148,15 @@
 	  render: function () {
 	    const { todos, showCompleted, searchText } = this.props;
 	    const renderTodos = () => {
-	      if (todos.length === 0) {
+	      const filteredTodos = TodoApi.filterTodos(todos, showCompleted, searchText);
+	      if (filteredTodos.length === 0) {
 	        return React.createElement(
 	          'p',
 	          { className: 'container__message' },
 	          'Nothing To Do'
 	        );
 	      }
-	      return TodoApi.filterTodos(todos, showCompleted, searchText).map(todo => {
+	      return filteredTodos.map(todo => {
 	        return React.createElement(_Todo2.default, _extends({ key: todo.id }, todo));
 	      });
 	    };
@@ -43156,7 +43150,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.startToggleTodo = exports.updateTodo = exports.toggleShowCompleted = exports.addTodos = exports.startAddTodo = exports.addTodo = exports.setSearchText = undefined;
+	exports.startToggleTodo = exports.updateTodo = exports.toggleShowCompleted = exports.startAddTodos = exports.addTodos = exports.startAddTodo = exports.addTodo = exports.setSearchText = undefined;
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -43201,6 +43195,22 @@
 	  type: 'ADD_TODOS',
 	  todos
 	});
+
+	const startAddTodos = exports.startAddTodos = () => {
+	  return (dispatch, getState) => {
+	    const todosRef = _firebase.firebaseRef.child('todos');
+	    return todosRef.once('value').then(snapshot => {
+	      const rawTodos = snapshot.val();
+	      const keys = Object.keys(rawTodos);
+	      const todos = keys.map(key => _extends({
+	        id: key
+	      }, rawTodos[key]));
+	      dispatch(addTodos(todos));
+	    }).catch(e => {
+	      console.log('Error while fetching data from Firebase', e);
+	    });
+	  };
+	};
 
 	const toggleShowCompleted = exports.toggleShowCompleted = () => ({
 	  type: 'TOGGLE_SHOW_COMPLETED'
@@ -43908,29 +43918,9 @@
 /* 389 */
 /***/ function(module, exports) {
 
-	'use strict';
+	"use strict";
 
 	module.exports = {
-	  setTodos: function (todos) {
-	    if (Array.isArray(todos)) {
-	      localStorage.setItem('todos', JSON.stringify(todos));
-	      return todos;
-	    }
-	  },
-
-	  getTodos: function () {
-	    const stringTodos = localStorage.getItem('todos');
-	    let todos;
-
-	    try {
-	      todos = JSON.parse(stringTodos);
-	    } catch (error) {
-	      console.error(error);
-	    }
-
-	    return Array.isArray(todos) ? todos : [];
-	  },
-
 	  filterTodos: function (todos, showCompleted, searchText) {
 	    const lowerSearchText = searchText.toLowerCase();
 	    let filteredTodos = todos;

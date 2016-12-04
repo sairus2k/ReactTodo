@@ -34,6 +34,25 @@ export const addTodos = todos => ({
   todos
 });
 
+export const startAddTodos = () => {
+  return (dispatch, getState) => {
+    const todosRef = firebaseRef.child('todos');
+    return todosRef.once('value')
+      .then(snapshot => {
+        const rawTodos = snapshot.val();
+        const keys = Object.keys(rawTodos);
+        const todos = keys.map(key => ({
+          id: key,
+          ...rawTodos[key]
+        }));
+        dispatch(addTodos(todos));
+      })
+      .catch(e => {
+        console.log('Error while fetching data from Firebase', e);
+      });
+  }
+};
+
 export const toggleShowCompleted = () => ({
   type: 'TOGGLE_SHOW_COMPLETED'
 });

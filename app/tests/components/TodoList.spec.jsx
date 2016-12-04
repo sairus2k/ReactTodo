@@ -30,7 +30,7 @@ describe('TodoList', () => {
 
   it('should render empty message if no todos', () => {
     const todos = [];
-    const todoList = TestUtils.renderIntoDocument(<TodoList todos={todos}/>);
+    const todoList = TestUtils.renderIntoDocument(<TodoList todos={todos} searchText={''}/>);
     const el = ReactDOM.findDOMNode(todoList);
     expect(el.children[0].innerHTML).toBe('Nothing To Do');
   });

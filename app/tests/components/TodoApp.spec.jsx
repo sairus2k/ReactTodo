@@ -4,7 +4,7 @@ const {Provider} = require('react-redux');
 const TestUtils = require('react-addons-test-utils');
 
 const configureStore = require('configureStore');
-const TodoApp = require('TodoApp');
+import {TodoApp} from 'TodoApp';
 import TodoList from 'TodoList';
 const todoFixture = require('../fixtures/todo.json');
 

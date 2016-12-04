@@ -28214,7 +28214,7 @@
 	    return React.createElement(
 	      'div',
 	      { className: todoClassName, onClick: () => {
-	          dispatch(actions.toggleTodo(id));
+	          dispatch(actions.startToggleTodo(id, !completed));
 	        } },
 	      React.createElement(
 	        'div',
@@ -43156,7 +43156,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.toggleTodo = exports.toggleShowCompleted = exports.addTodos = exports.startAddTodo = exports.addTodo = exports.setSearchText = undefined;
+	exports.startToggleTodo = exports.updateTodo = exports.toggleShowCompleted = exports.addTodos = exports.startAddTodo = exports.addTodo = exports.setSearchText = undefined;
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -43206,10 +43206,24 @@
 	  type: 'TOGGLE_SHOW_COMPLETED'
 	});
 
-	const toggleTodo = exports.toggleTodo = id => ({
-	  type: 'TOGGLE_TODO',
-	  id
+	const updateTodo = exports.updateTodo = (id, updates) => ({
+	  type: 'UPDATE_TODO',
+	  id,
+	  updates
 	});
+
+	const startToggleTodo = exports.startToggleTodo = (id, completed) => {
+	  return (dispatch, getState) => {
+	    const todoRef = _firebase.firebaseRef.child(`todos/${ id }`);
+	    const updates = {
+	      completed,
+	      completedAt: completed ? (0, _moment2.default)().unix() : null
+	    };
+	    return todoRef.update(updates).then(() => {
+	      dispatch(updateTodo(id, updates));
+	    });
+	  };
+	};
 
 /***/ },
 /* 382 */
@@ -44151,14 +44165,10 @@
 	      return action.todos;
 	    case 'ADD_TODO':
 	      return [...state, action.todo];
-	    case 'TOGGLE_TODO':
+	    case 'UPDATE_TODO':
 	      return state.map(todo => {
 	        if (todo.id === id) {
-	          const nextCompleted = !todo.completed;
-	          return _extends({}, todo, {
-	            completed: nextCompleted,
-	            completedAt: nextCompleted ? moment().unix() : null
-	          });
+	          return _extends({}, todo, action.updates);
 	        }
 	        return todo;
 	      });

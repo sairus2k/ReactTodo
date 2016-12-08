@@ -3,12 +3,12 @@ import * as Redux from 'react-redux';
 
 import * as actions from 'actions';
 
-export const Login = React.createClass({
-  onLogin() {
-    const {dispatch} = this.props;
-    dispatch(actions.startLogin());
-  },
+export class Login extends React.Component {
   render() {
+    const onLogin = () => {
+      const { dispatch } = this.props;
+      dispatch(actions.startLogin());
+    };
     return (
       <div>
         <h1 className="page-title">Todo App</h1>
@@ -17,13 +17,13 @@ export const Login = React.createClass({
             <div className="callout callout-auth">
               <h3>Login</h3>
               <p> Login with GitHub account below. </p>
-              <button className="button" onClick={this.onLogin}>Login With GitHub</button>
+              <button className="button" onClick={onLogin}>Login With GitHub</button>
             </div>
           </div>
         </div>
       </div>
     );
   }
-});
+}
 
 export default Redux.connect()(Login);

@@ -4,19 +4,19 @@ import * as Redux from 'react-redux';
 import TodoList from 'TodoList';
 import AddTodo from 'AddTodo';
 import TodoSearch from 'TodoSearch';
-import * as actions from 'actions';
+import {startLogout} from 'actions';
 
-export const TodoApp = React.createClass({
-  onLogout(e) {
-    e.preventDefault();
-    const { dispatch } = this.props;
-    dispatch(actions.startLogout());
-  },
+export class TodoApp extends React.Component {
   render() {
+    const onLogout = e => {
+      e.preventDefault();
+      const { dispatch } = this.props;
+      dispatch(startLogout());
+    };
     return (
       <div>
         <div className="page-actions">
-          <a href="#" onClick={this.onLogout}>Logout</a>
+          <a href="#" onClick={onLogout}>Logout</a>
         </div>
         <h1 className="page-title">Todo App</h1>
         <div className="row">
@@ -31,6 +31,6 @@ export const TodoApp = React.createClass({
       </div>
     )
   }
-});
+}
 
 export default Redux.connect()(TodoApp);

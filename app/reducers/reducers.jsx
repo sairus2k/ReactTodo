@@ -43,3 +43,17 @@ export const todosReducer = (state = [], action) => {
       return state;
   }
 };
+
+export const authReducer = (state = {}, action) => {
+  const { type, uid } = action;
+  switch (type) {
+    case 'LOGIN':
+      return {
+        uid
+      };
+    case 'LOGOUT':
+      return {};
+    default:
+      return state;
+  }
+};

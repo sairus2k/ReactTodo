@@ -1,1 +1,1 @@
-# Simple Timer application with React
+# Simple Todo application with React
